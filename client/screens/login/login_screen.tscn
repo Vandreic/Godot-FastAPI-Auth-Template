@@ -1,0 +1,120 @@
+[gd_scene format=3 uid="uid://bjhob1c2meu8q"]
+
+[ext_resource type="PackedScene" uid="uid://cae2j4owaaexq" path="res://screens/templates/base_screen_template.tscn" id="1_ygu2p"]
+[ext_resource type="Script" uid="uid://xaywiunpl41q" path="res://screens/login/login_screen_manager.gd" id="2_mkebd"]
+[ext_resource type="Texture2D" uid="uid://cnyo1aipvjhgf" path="res://assets/icons/circle.svg" id="3_jsh6f"]
+[ext_resource type="Texture2D" uid="uid://5ph0lrg15n2n" path="res://assets/icons/sync.svg" id="4_mkebd"]
+
+[node name="LoginScreen" unique_id=921599697 instance=ExtResource("1_ygu2p")]
+script = ExtResource("2_mkebd")
+
+[node name="Title" parent="Background/UIContainer" index="0"]
+text = "Welcome to <app_name>"
+
+[node name="LoginUIBox" type="VBoxContainer" parent="Background/UIContainer" index="1" unique_id=1789194625]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.275
+anchor_right = 1.0
+anchor_bottom = 0.7
+theme_override_constants/separation = 40
+
+[node name="ServerStatusContainer" type="VBoxContainer" parent="Background/UIContainer/LoginUIBox" index="0" unique_id=646268356]
+layout_mode = 2
+alignment = 1
+
+[node name="StatusRow" type="HBoxContainer" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer" index="0" unique_id=1207515661]
+layout_mode = 2
+theme_override_constants/separation = 20
+alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer/StatusRow" index="0" unique_id=234858006]
+layout_mode = 2
+
+[node name="ServerStatusIndicator" type="TextureRect" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer/StatusRow/HBoxContainer" index="0" unique_id=959237838]
+unique_name_in_owner = true
+modulate = Color(0.61960787, 0.61960787, 0.61960787, 1)
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+texture = ExtResource("3_jsh6f")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ServerStatusLabel" type="Label" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer/StatusRow/HBoxContainer" index="1" unique_id=1545746445]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"UI_Label"
+theme_override_font_sizes/font_size = 28
+text = "Checking Server Status..."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ReconnectButton" type="TextureButton" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer/StatusRow" index="1" unique_id=76792921]
+unique_name_in_owner = true
+visible = false
+modulate = Color(0.19215687, 0.2, 0.2, 1)
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+texture_normal = ExtResource("4_mkebd")
+stretch_mode = 5
+
+[node name="ServerStatusDescription" type="Label" parent="Background/UIContainer/LoginUIBox/ServerStatusContainer" index="1" unique_id=1855428603]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(500, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="AccessCodeContainer" type="VBoxContainer" parent="Background/UIContainer/LoginUIBox" index="1" unique_id=947604866]
+layout_mode = 2
+
+[node name="AccessCodeLabel" type="Label" parent="Background/UIContainer/LoginUIBox/AccessCodeContainer" index="0" unique_id=1017839837]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_type_variation = &"UI_Label"
+text = "Access Code:"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AccessCodeFormContainer" type="VBoxContainer" parent="Background/UIContainer/LoginUIBox/AccessCodeContainer" index="1" unique_id=1258853104]
+custom_minimum_size = Vector2(450, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 20
+
+[node name="AccessCodeInput" type="TextEdit" parent="Background/UIContainer/LoginUIBox/AccessCodeContainer/AccessCodeFormContainer" index="0" unique_id=383705620]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_type_variation = &"UI_TextEdit"
+placeholder_text = "Enter Access Code Here..."
+
+[node name="ConnectButton" type="Button" parent="Background/UIContainer/LoginUIBox/AccessCodeContainer/AccessCodeFormContainer" index="1" unique_id=436639305]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_type_variation = &"UI_FilledButton"
+disabled = true
+text = "Connect"
+
+[node name="AppVersionLabel" type="Label" parent="Background/UIContainer" index="2" unique_id=1469626282]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.975
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_type_variation = &"UI_Small"
+theme_override_colors/font_color = Color(0, 0, 0, 0.19607843)
+text = "v0.0.0"
+horizontal_alignment = 1
+vertical_alignment = 2

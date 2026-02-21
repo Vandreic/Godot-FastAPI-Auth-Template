@@ -1,0 +1,58 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
+[application]
+
+config/name="Client"
+config/version="1.0.0"
+run/main_scene="uid://3dh2lyes5t21"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+APIManager="*res://autoload/api_manager.gd"
+ScreenManager="*res://autoload/screen_manager.gd"
+
+[display]
+
+window/size/viewport_width=720
+window/size/viewport_height=720
+window/subwindows/embed_subwindows=false
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/handheld/orientation=6
+
+[file_customization]
+
+folder_colors={
+"res://assets/": "yellow",
+"res://autoload/": "purple",
+"res://components/": "green",
+"res://screens/": "blue"
+}
+
+[gui]
+
+theme/custom="uid://di2vbg26pjohw"
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true

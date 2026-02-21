@@ -1,0 +1,96 @@
+[gd_resource type="Theme" format=3 uid="uid://di2vbg26pjohw"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k2kha"]
+bg_color = Color(0.9882353, 0.9882353, 0.9882353, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_q034a"]
+bg_color = Color(0.225, 0.43499994, 0.45, 0.7411765)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c67g2"]
+bg_color = Color(0, 0, 0, 0)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_11dqm"]
+bg_color = Color(0.12428273, 0.31230557, 0.32405698, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8xkgr"]
+bg_color = Color(0.18431373, 0.43529412, 0.4509804, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_g3sna"]
+bg_color = Color(0.080214866, 0.221232, 0.23004557, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vnuio"]
+bg_color = Color(0.8666667, 0.8980392, 0.9019608, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5294118, 0.59607846, 0.6, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hc1em"]
+bg_color = Color(0.8666667, 0.8980392, 0.9019608, 1)
+border_width_left = 14
+border_width_top = 10
+border_width_right = 14
+border_width_bottom = 10
+border_color = Color(0.8666667, 0.8980392, 0.9019608, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+
+[resource]
+UI_Background/base_type = &"Panel"
+UI_Background/styles/panel = SubResource("StyleBoxFlat_k2kha")
+UI_Body/base_type = &"Label"
+UI_Body/colors/font_color = Color(0.19215687, 0.2, 0.2, 1)
+UI_Body/font_sizes/font_size = 24
+UI_FilledButton/base_type = &"Button"
+UI_FilledButton/colors/font_color = Color(1, 1, 1, 1)
+UI_FilledButton/font_sizes/font_size = 24
+UI_FilledButton/styles/disabled = SubResource("StyleBoxFlat_q034a")
+UI_FilledButton/styles/focus = SubResource("StyleBoxFlat_c67g2")
+UI_FilledButton/styles/hover = SubResource("StyleBoxFlat_11dqm")
+UI_FilledButton/styles/normal = SubResource("StyleBoxFlat_8xkgr")
+UI_FilledButton/styles/pressed = SubResource("StyleBoxFlat_g3sna")
+UI_Label/base_type = &"Label"
+UI_Label/colors/font_color = Color(0.19215687, 0.2, 0.2, 1)
+UI_Label/font_sizes/font_size = 26
+UI_Section/base_type = &"Label"
+UI_Section/colors/font_color = Color(0.19215687, 0.2, 0.2, 1)
+UI_Section/font_sizes/font_size = 32
+UI_Small/base_type = &"Label"
+UI_Small/colors/font_color = Color(0.19215687, 0.2, 0.2, 1)
+UI_Small/font_sizes/font_size = 16
+UI_TextEdit/base_type = &"TextEdit"
+UI_TextEdit/colors/font_color = Color(0.3529412, 0.39607844, 0.4, 1)
+UI_TextEdit/colors/font_placeholder_color = Color(0.3529412, 0.39607844, 0.4, 0.6)
+UI_TextEdit/font_sizes/font_size = 24
+UI_TextEdit/styles/focus = SubResource("StyleBoxFlat_vnuio")
+UI_TextEdit/styles/normal = SubResource("StyleBoxFlat_hc1em")
+UI_Title/base_type = &"Label"
+UI_Title/colors/font_color = Color(0.19215687, 0.2, 0.2, 1)
+UI_Title/font_sizes/font_size = 48

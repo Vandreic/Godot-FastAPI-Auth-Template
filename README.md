@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  A full-stack template featuring a Godot frontend and a Python FastAPI backend. The Godot app provides the user interface and communicates with the backend via HTTP. The backend uses a simple access key authentication system, giving developers control over who can access the app.
+  A full-stack template built with a Godot frontend and a Python FastAPI backend. The Godot app provides the user interface and communicates with the backend over HTTP. The backend includes a simple access key verification system: users submit a key, and the server validates it against a static value stored in environment variables.
 </p>
 
 ## Table of Contents
@@ -46,12 +46,13 @@
 **Server (Backend):** Built with [Python](https://www.python.org/) and [FastAPI](https://fastapi.tiangolo.com/). The backend provides API endpoints with no user interface. FastAPI automatically converts [Pydantic](https://docs.pydantic.dev/latest/) models into JSON responses that the client can parse and use to update the UI.
 
 ## Features
-- 🔐 **Simple Access Key Authentication** - No complex user management
-- 📦 **JSON Responses** - Clean, structured API responses
-- ⏱️ **Rate Limiting** - Built-in API call limiter and cooldown timer to prevent spam
-- 🏗️ **Modular & Scalable API** - Organized with versioning (e.g., `/api/v1/`)
-- 📱 **Responsive UI** - Automatically adapts to any screen size
-- 🔄 **Dynamic Screen Scaling** - Landscape and portrait mode support 
+- 🔐 **Simple Access Key Authentication** – No complex user management
+- 📦 **JSON Responses** – Clean, structured API responses
+- ⏱️ **Rate Limiting** – Built-in API call limiter and cooldown timer to prevent spam
+- 🏗️ **Modular & Scalable API** – Organized with versioning (e.g., `/api/v1/`)
+- 📱 **Responsive UI** – Automatically adapts to any screen size
+- 🔄 **Dynamic Screen Scaling** – Landscape and portrait mode support
+- 🌍 **Localization (CSV)** – Translation system is set up; add more languages by extending the CSV
 
 ## Quick Start
 1. Clone the repository:

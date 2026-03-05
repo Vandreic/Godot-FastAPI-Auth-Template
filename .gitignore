@@ -1,11 +1,10 @@
-# Godot 4+ specific ignores
-.godot/
-
 # Godot-specific ignores
 *.import
 *.tmp
 export.cfg
 export_presets.cfg
+*.uid
+client/.godot/
 
 # Imported translations (automatically generated from CSV files)
 *.translation
@@ -21,6 +20,8 @@ android/
 .vscode/*
 client/.vscode/*
 server/.vscode/*
+# Keep launch.json (client)
+!client/.vscode/launch.json
 
 # Python
 *.pyc

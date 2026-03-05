@@ -1,3 +1,4 @@
+extends Node
 ## Loads and switches between application screens.
 ##
 ## Reads [constant SCREENS_FOLDER_PATH] for screen scenes on initialization
@@ -6,13 +7,16 @@
 ## [br][br]
 ## [b]Autoload:[/b] Access this singleton globally via [code]ScreenManager[/code].
 
-extends Node
 
 
 ## Available screens in the application.
 enum Screen {
+	## The landing screen where users select their language.
+	LANGUAGE_SELECTION_SCREEN,
 	## The login screen where users enter access codes.
 	LOGIN_SCREEN,
+	## The name entry screen where user writes their name.
+	NAME_ENTRY_SCREEN,
 	## The home screen displayed after successful login.
 	HOME_SCREEN,
 }
@@ -37,11 +41,6 @@ func _init() -> void:
 	_load_screens_from_folder(SCREENS_FOLDER_PATH)
 
 
-## Called when the screen manager enters the scene tree.
-func _ready() -> void:
-	pass
-
-
 ## Reads a folder for screen scenes and populates [member screens_dict].
 ##
 ## Loops through subdirectories in [param folder_path] and searches for
@@ -52,7 +51,7 @@ func _ready() -> void:
 func _load_screens_from_folder(folder_path: String) -> void:
 	var dir: DirAccess = DirAccess.open(folder_path)
 
-	if dir:
+	if dir != null:
 		# Start reading files from the folder
 		dir.list_dir_begin()
 		var file_name: String = dir.get_next()
@@ -80,14 +79,13 @@ func _load_screens_from_folder(folder_path: String) -> void:
 					# Key: "folder_name_screen" (e.g., "login_screen")
 					# Value: full path to the scene file
 					screens_dict[file_name + "_screen"] = scene_path
-					print("Loaded screen: %s -> %s" % [file_name + "_screen.tscn", scene_path])
+					print("[SCENE MANAGER] Loaded screen: %s -> %s" % [file_name + "_screen.tscn", scene_path])
 			
 			# Move to the next file/folder in the directory
 			file_name = dir.get_next()
+	
 	else:
-		# Failed to open the directory - print error message
-		print("Failed to open directory: %s" % folder_path)
-		print("Error: %s" % DirAccess.get_open_error())
+		push_error("[SCENE MANAGER] Open directory failed: %s\n[SCENE MANAGER] Error: %s - %s" % [folder_path, DirAccess.get_open_error(), error_string(DirAccess.get_open_error())])
 
 
 ## Transitions to a different screen.
@@ -101,7 +99,7 @@ func change_screen(screen: Screen) -> void:
 
 	# Check if UI node exists
 	if ui_node == null:
-		print("UI node not found!")
+		push_error("[SCENE MANAGER] UI node not found")
 		return
 	
 	# Get current screen
@@ -110,19 +108,23 @@ func change_screen(screen: Screen) -> void:
 	# Determine screen name based on enum
 	var screen_name: String = ""
 	match screen:
+		Screen.LANGUAGE_SELECTION_SCREEN:
+			screen_name = "language_selection_screen"
 		Screen.LOGIN_SCREEN:
 			screen_name = "login_screen"
+		Screen.NAME_ENTRY_SCREEN:
+			screen_name = "name_entry_screen"
 		Screen.HOME_SCREEN:
 			screen_name = "home_screen"
-
+		_:
+			push_error("[SCENE MANAGER] Invalid screen enum: %s" % screen)
+			return
 
 	# Check if requested screen exists
 	if screens_dict.has(screen_name):
 		# Remove current screen
 		current_screen.queue_free()
-		
 		# Load new screen
 		var new_screen: Node = load(screens_dict[screen_name]).instantiate()
-		
 		# Add new screen
 		ui_node.add_child(new_screen)

@@ -1,10 +1,13 @@
 [gd_scene format=3 uid="uid://brqg3ffc02j55"]
 
 [ext_resource type="PackedScene" uid="uid://cae2j4owaaexq" path="res://screens/templates/base_screen_template.tscn" id="1_edi7g"]
-[ext_resource type="Script" uid="uid://d3jbf62rn4viv" path="res://screens/home/home_screen_manager.gd" id="2_j3u56"]
+[ext_resource type="Script" uid="uid://bxlep6c7nhmpj" path="res://screens/home/home_screen_manager.gd" id="2_j3u56"]
 
 [node name="HomeScreen" unique_id=485142791 instance=ExtResource("1_edi7g")]
 script = ExtResource("2_j3u56")
 
-[node name="Title" parent="Background/UIContainer" index="0"]
+[node name="TitleLabel" parent="BackgroundPanel/UIContainer" parent_id_path=PackedInt32Array(1692627922) index="0" unique_id=246013616]
+unique_name_in_owner = true
+grow_horizontal = 2
 text = "Welcome back <user>!"
+autowrap_mode = 2

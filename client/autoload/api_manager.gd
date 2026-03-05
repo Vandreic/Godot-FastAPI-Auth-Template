@@ -1,3 +1,4 @@
+extends Node
 ## Communicates with the backend server through HTTP requests.
 ##
 ## Performs server health checks and verifies access codes. Emits
@@ -9,7 +10,6 @@
 ## [br][br]
 ## [b]Autoload:[/b] Access this singleton globally via [code]APIManager[/code].
 
-extends Node
 
 ## Represents the server's health status after a connection attempt.
 enum ServerHealthStatus {
@@ -37,7 +37,7 @@ signal check_server_health_completed(status: ServerHealthStatus, title: String, 
 ## If [param access_granted] is [code]true[/code], the access code is valid.
 ## [param message] contains the server's response message.
 ## [param response_data] contains the full parsed JSON response.
-signal verify_access_code_completed(access_granted: bool, message: String, response_data: Dictionary)
+signal verify_access_code_completed(access_granted: bool, title: String, description: String)
 
 
 ## The server's host address including the protocol.
@@ -72,29 +72,31 @@ var endpoints: Dictionary = {
 
 ## Tracks API call counts and limits for each endpoint.
 var api_call_limits: Dictionary = {
-	"health_check": {"count": 0, "limit": 2},
-	"verify_access_code": {"count": 0, "limit": 2},
+	"health_check": {"count": 0, "limit": 5},
+	"verify_access_code": {"count": 0, "limit": 5},
 }
 
 
-## Sends a health check request to the server.
+## Sends a health check request to the server If [param skip_cooldown_check] 
+## is [code]true[/code], skips restore check (used when cooldown has just ended). [br][br]
 ##
 ## Creates an [HTTPRequest] node, sends a GET request to the health endpoint,
 ## and emits [signal check_server_health_completed] with the result. Times out
 ## after [constant HTTP_REQUEST_TIMEOUT_DURATION].
 func check_server_health() -> void:
-
-	if api_call_limits["health_check"]["count"] >= api_call_limits["health_check"]["limit"]:
-		
-		_create_cooldown_timer("health")
+	if _restore_cooldown_if_needed() == true:
 		return
 	
+	# Check if API call limit is reached for this endpoint
+	if api_call_limits["health_check"]["count"] >= api_call_limits["health_check"]["limit"]:
+		_create_cooldown_timer("health")
+		return
 	else:
 		var request_headers: Array = ["Content-Type: application/json"]
 		_make_api_request("health", request_headers, Callable(self, "_on_check_server_health_completed"))
 		# Increment the API call count for health_check
 		api_call_limits["health_check"]["count"] += 1
-
+	
 
 ## Verifies an access code with the server.
 ##
@@ -102,11 +104,12 @@ func check_server_health() -> void:
 ## [signal verify_access_code_completed] with the result. Times out
 ## after [constant HTTP_REQUEST_TIMEOUT_DURATION].
 func verify_access_code(access_code: String) -> void:
-
+	if _restore_cooldown_if_needed() == true:
+		return
+	
 	if api_call_limits["verify_access_code"]["count"] >= api_call_limits["verify_access_code"]["limit"]:
 		_create_cooldown_timer("verify")
 		return
-	
 	else:
 		var request_headers: Array = [
 			"Content-Type: application/json",
@@ -117,15 +120,40 @@ func verify_access_code(access_code: String) -> void:
 		api_call_limits["verify_access_code"]["count"] += 1
 
 
+## Restores an active cooldown from save data if still in effect. [br][br]
+##
+## Returns [code]true[/code] if a cooldown was restored or is still active.
+func _restore_cooldown_if_needed() -> bool:
+	if has_node("APICallCooldownTimer") == true:
+		return true
+	
+	var endpoint: String = SaveData.save_data_dict["api_cooldown_endpoint"]
+	var cooldown_until: float = SaveData.save_data_dict["api_cooldown_until"]
+	var now: float = Time.get_unix_time_from_system()
+	
+	if cooldown_until <= now or endpoint.is_empty() == true:
+		return false
+	
+	var remaining: float = cooldown_until - now
+	_create_cooldown_timer(endpoint, remaining)
+	return true
+
+
 ## Create a timer to manage API call cooldowns when limits are reached.
 ##
 ## [param endpoint] determines which endpoint cooldown to manage.
-func _create_cooldown_timer(endpoint: String) -> void:
-	
+## [param remaining_seconds] if positive, uses this instead of [constant API_CALL_COOLDOWN_DURATION] (for restored cooldowns).
+func _create_cooldown_timer(endpoint: String, remaining_seconds: float = -1.0) -> void:
+	var duration: float = float(API_CALL_COOLDOWN_DURATION) if remaining_seconds < 0 else remaining_seconds
+	var cooldown_until: float = Time.get_unix_time_from_system() + duration
+	SaveData.save_data_dict["api_cooldown_until"] = cooldown_until
+	SaveData.save_data_dict["api_cooldown_endpoint"] = endpoint
+	SaveData.save_data_to_file()
+
 	# Create main cooldown timer
 	var cooldown_timer: Timer = Timer.new()
 	cooldown_timer.name = "APICallCooldownTimer"
-	cooldown_timer.wait_time = float(API_CALL_COOLDOWN_DURATION)
+	cooldown_timer.wait_time = duration
 	cooldown_timer.one_shot = true
 	add_child(cooldown_timer)
 	cooldown_timer.start()
@@ -147,49 +175,52 @@ func _create_cooldown_timer(endpoint: String) -> void:
 func _on_cooldown_tick(endpoint: String, cooldown_timer: Timer, tick_timer: Timer) -> void:
 
 	# Format remaining time to MM:SS
-	var time_left = int(round(cooldown_timer.time_left))
-	var minutes = time_left / 60
-	var seconds = time_left % 60
-	var time_string = "%02d:%02d" % [minutes, seconds]
+	var time_left: int = int(round(cooldown_timer.time_left))
+	var minutes: int = time_left / 60
+	var seconds: int = time_left % 60
+	var time_string: String = "%02d:%02d" % [minutes, seconds]
 
 	match endpoint:
 				"health":
 					check_server_health_completed.emit(
 						ServerHealthStatus.ERROR,
-						"API Call Limit Reached!",
-						"You have reached the maximum number of allowed API calls for this endpoint.
-						
-						Try again in %s" % time_string
+						tr("SERVER_STATUS_API_LIMIT_REACHED"), # API Call Limit Reached!
+						tr("SERVER_INFO_API_LIMIT_REACHED").format({"time": time_string}) # You have reached the maximum number of allowed API calls. \n\n Try again in {time}.
+
 					)
 				"verify":
 					verify_access_code_completed.emit(
 						false,
-						"API Call Limit Reached!",
-						{"description": "You have reached the maximum number of allowed API calls for this endpoint.
-						
-						Try again in %s" % time_string}
+						tr("SERVER_STATUS_API_LIMIT_REACHED"), # API Call Limit Reached!
+						tr("SERVER_INFO_API_LIMIT_REACHED").format({"time": time_string}) # You have reached the maximum number of allowed API calls. \n\n Try again in {time}.
 					)
-				# _:
-				# 	print("Unknown endpoint key: %s" % endpoint_key)
+				#_:
+					#push_warning("[API MANAGER] Invalid endpoint: %s" % endpoint)
+					#return
 
 	# Check if cooldown has ended
 	if cooldown_timer.time_left <= 0:
-		# Stop and free the tick timer
+		# Remove from tree first so has_node returns false before we call check_server_health
 		tick_timer.stop()
+		remove_child(tick_timer)
 		tick_timer.queue_free()
-		# Stop and free the main cooldown timer
 		cooldown_timer.stop()
+		remove_child(cooldown_timer)
 		cooldown_timer.queue_free()
 
+		# Clear persisted cooldown
+		SaveData.save_data_dict["api_cooldown_until"] = 0.0
+		SaveData.save_data_dict["api_cooldown_endpoint"] = ""
+		SaveData.save_data_to_file()
 
 		# Reset API call count for the endpoint and re-check server health
 		match endpoint:
 			"health":
 				api_call_limits["health_check"]["count"] = 0
-				check_server_health()
 			"verify":
 				api_call_limits["verify_access_code"]["count"] = 0
-				check_server_health() # Re-check server health after cooldown
+		
+		check_server_health()
 
 
 ## Sends an API request to the specified endpoint.
@@ -219,11 +250,14 @@ func _make_api_request(endpoint: String, headers: Array, callback: Callable, met
 		# Emit appropriate signal based on endpoint
 		match endpoint:
 			"health":
-				emit_signal(signal_name, ServerHealthStatus.ERROR, "An error occurred.", "Failed to send health check request.")
+				# An error occurred. \n Could not connect to the server.
+				emit_signal(signal_name, ServerHealthStatus.ERROR, tr("SERVER_STATUS_ERROR"), tr("SERVER_INFO_ERROR_SEND_HEALTH_CHECK"))
 			"verify":
-				emit_signal(signal_name, false, "An error occurred.", {"description": "Failed to send access code verification request."})
-			# _:
-			# 	print("Unknown endpoint key: %s" % endpoint_key)
+				# An error occurred. \n Could not send access code to server.
+				emit_signal(signal_name, false, tr("SERVER_STATUS_ERROR"), tr("SERVER_INFO_ERROR_SEND_ACCESS_CODE"))
+			_:
+					push_warning("[API MANAGER] Invalid endpoint: %s" % endpoint)
+					return
 
 
 ## Processes the server health check response.
@@ -232,48 +266,47 @@ func _make_api_request(endpoint: String, headers: Array, callback: Callable, met
 ## with the appropriate [enum ServerHealthStatus].
 func _on_check_server_health_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest) -> void:
 	http_request.queue_free()
-	
-	# Check for connection/DNS errors
+		
+	## Check for connection/DNS errors
 	if result == HTTPRequest.RESULT_CANT_RESOLVE: # Request failed while resolving
 		check_server_health_completed.emit(
 			ServerHealthStatus.NO_INTERNET, 
-			"No internet connection!",
-			"Please connect to the internet and try again."
+			tr("SERVER_STATUS_NO_INTERNET"), # "No internet connection!"
+			tr("SERVER_INFO_NO_INTERNET") # "Please connect to the internet and try again."
 		)
 		return
-	# Check for Connection Errors
+	## Check for Connection Errors
 	elif result == HTTPRequest.RESULT_CANT_CONNECT: # Request failed while connecting
 		check_server_health_completed.emit(
 			ServerHealthStatus.SERVER_UNREACHABLE,
-			"Server is offline",
-			"Server is temporarily offline. Please try again later."
+			tr("SERVER_STATUS_OFFLINE"), # "Server Status: Offline.",
+			tr("SERVER_INFO_OFFLINE") # "Server is temporarily offline. Please try again later.
 		)
 		return
-	# Check for Timeout specifically
+	## Check for Timeout specifically
 	elif result == HTTPRequest.RESULT_TIMEOUT: # Request failed due to a timeout
 		check_server_health_completed.emit(
 			ServerHealthStatus.TIMEOUT,
-			"Connection timed out.",
-			"Please check your connection and try again."
+			tr("SERVER_STATUS_CONNECTION_TIMEOUT"), # "Connection timed out."
+			tr("SERVER_INFO_CHECK_CONNECTION") # 
 		)
 		return
 
 	# Check the Server Response Code
 	if response_code == 200:
-		# Check status (optional)
 		var server_response: Variant = JSON.parse_string(body.get_string_from_utf8())
-		if server_response["status"] == "ok":
+		if server_response["status"] == "ok": # Check status (optional)
 			check_server_health_completed.emit(
 				ServerHealthStatus.HEALTHY,
-				"Server Status: Online",
-				""
+				tr("SERVER_STATUS_ONLINE"), # "Server Status: Online"
+				"" # No additional info
 			)
 			return
 	else:
 		check_server_health_completed.emit(
 			ServerHealthStatus.ERROR,
-			"An error occurred.",
-			"Server responded with code: %s" % response_code
+			tr("SERVER_STATUS_ERROR"), # "An error occurred."
+			tr("SERVER_INFO_ERROR").format({"response_code": response_code}) # "Server responded with code: {response_code}"
 		)
 		return
 
@@ -284,41 +317,42 @@ func _on_check_server_health_completed(result: int, response_code: int, headers:
 ## with the verification status and server message.
 func _on_verify_access_code_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray, http_request: HTTPRequest) -> void:
 	http_request.queue_free()
-	
+
 	# Check for connection/DNS errors
 	if result == HTTPRequest.RESULT_CANT_RESOLVE: # Request failed while resolving
 		check_server_health_completed.emit(
 			ServerHealthStatus.NO_INTERNET, 
-			"No internet connection!",
-			"Please connect to the internet and try again"
+			tr("SERVER_STATUS_NO_INTERNET"), # "No internet connection!"
+			tr("SERVER_INFO_NO_INTERNET") # "Please connect to the internet and try again."
 		)
 		return
 	# Check for Connection Errors
 	elif result == HTTPRequest.RESULT_CANT_CONNECT: # Request failed while connecting
 		check_server_health_completed.emit(
 			ServerHealthStatus.SERVER_UNREACHABLE,
-			"Server is offline",
-			"Server is temporarily offline. Please try again later."
+			tr("SERVER_STATUS_OFFLINE"), # "Server Status: Offline.",
+			tr("SERVER_INFO_OFFLINE") # "Server is temporarily offline. Please try again later."
 		)
 		return
 	# Check for Timeout specifically
 	elif result == HTTPRequest.RESULT_TIMEOUT: # Request failed due to a timeout
 		check_server_health_completed.emit(
 			ServerHealthStatus.TIMEOUT,
-			"Connection timed out.",
-			"Please check your connection or try again."
+			tr("SERVER_STATUS_TIMEOUT"), # "Connection timed out.",
+			tr("SERVER_INFO_TIMEOUT") # "Please check your connection or try again."
 		)
 		return
 
 	# Check the Server Response Code
 	var server_response: Variant = JSON.parse_string(body.get_string_from_utf8())
-	if response_code == 200:
+
+	if response_code == 200: # { "status": "ok", "role": "user" }
 		# Check status (optional)
 		if server_response["status"] == "ok":
-			verify_access_code_completed.emit(true, "", server_response)
+			verify_access_code_completed.emit(true, "", tr("SERVER_STATUS_ACCESS_GRANTED")) # "Access Granted! (No additional info; we leave title as is)"
 			return
 		
 	# Access Denied
-	elif response_code == 403:
-		verify_access_code_completed.emit(false, str(server_response["detail"]), server_response)
+	elif response_code == 403: # { "detail": "Invalid API key. Access denied." }
+		verify_access_code_completed.emit(false, tr("SERVER_STATUS_ACCESS_DENIED"), tr("SERVER_INFO_INVALID_API_KEY"))
 		return

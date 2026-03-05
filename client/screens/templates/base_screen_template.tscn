@@ -1,28 +1,28 @@
-[gd_scene load_steps=3 format=3 uid="uid://cae2j4owaaexq"]
+[gd_scene format=3 uid="uid://cae2j4owaaexq"]
 
-[ext_resource type="Script" uid="uid://bng2bkhu1ay73" path="res://screens/templates/base_screen_template_manager.gd" id="1_y7gjl"]
-[ext_resource type="Theme" uid="uid://di2vbg26pjohw" path="res://assets/themes/light_theme.tres" id="2_ybk1o"]
+[ext_resource type="Script" uid="uid://c4s5267fvycc4" path="res://screens/templates/base_screen_template_manager.gd" id="1_y7gjl"]
+[ext_resource type="Theme" uid="uid://di2vbg26pjohw" path="res://assets/themes/light_theme.tres" id="2_ll6kw"]
 
-[node name="BaseScreenTemplate" type="Node"]
+[node name="BaseScreenTemplate" type="Node" unique_id=834491522]
 script = ExtResource("1_y7gjl")
 
-[node name="Background" type="Panel" parent="."]
+[node name="BackgroundPanel" type="Panel" parent="." unique_id=536046563]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_ybk1o")
-theme_type_variation = &"UI_Background"
+theme = ExtResource("2_ll6kw")
+theme_type_variation = &"UI_Surface"
 
-[node name="UIContainer" type="Control" parent="Background"]
+[node name="UIContainer" type="Control" parent="BackgroundPanel" unique_id=1692627922]
 layout_mode = 1
 anchor_left = 0.03
 anchor_top = 0.04
 anchor_right = 0.97
 anchor_bottom = 0.985
 
-[node name="Title" type="Label" parent="Background/UIContainer"]
+[node name="TitleLabel" type="Label" parent="BackgroundPanel/UIContainer" unique_id=246013616]
 layout_mode = 1
 anchors_preset = -1
 anchor_top = 0.1

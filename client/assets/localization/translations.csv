@@ -1,0 +1,35 @@
+key,en,da
+CHOOSE_LANGUAGE,Choose a language,Vælg et sprog
+LANGUAGE,English,Dansk
+CONTINUE_BUTTON,Continue,Fortsæt
+APP_NAME,My Workdays,My Workdays
+WELCOME_TO_APP,"Welcome to
+{app_name}!","Velkommen til
+{app_name}!"
+CONNECT_BUTTON,Connect,Tilslut
+ACCESS_CODE,Access Code,Adgangskode
+ACCESS_CODE_PLACEHOLDER,Enter Access Code Here...,Skriv udleverede kode her...
+SERVER_STATUS_CHECKING,Checking Server Status...,Tjekker status på server...
+SERVER_STATUS_ONLINE,Server Status: Online,Server status: Online
+SERVER_STATUS_OFFLINE,Server status: Offline,Server status: Offline
+SERVER_STATUS_CONNECTION_TIMEOUT,Connection timed out.,Forbindelsen blev afbrudt.
+SERVER_INFO_CHECK_CONNECTION,Please check your connection and try again.,Tjek venligst din forbindelse og prøv igen.
+SERVER_STATUS_API_LIMIT_REACHED,API Call Limit Reached!,API-kaldsgræne nået!
+SERVER_INFO_API_LIMIT_REACHED,"You have reached the maximum number of allowed API calls.
+
+Try again in {time}.","Du har nået det maksimale antal tilladte API-kald for dette slutpunkt.
+
+Prøv igen om {time}."
+SERVER_STATUS_NO_INTERNET,No internet connection.,Ingen internetforbindelse.
+SERVER_INFO_NO_INTERNET,Please connect to the internet and try again.,Opret forbindelse til internettet og prøv igen.
+SERVER_INFO_OFFLINE,Server is temporarily offline. Please try again later.,Serveren er midlertidigt offline. Prøv igen senere.
+SERVER_STATUS_ERROR,An error occurred.,Der opstod en fejl.
+SERVER_INFO_ERROR,Server responded with code: {response_code},Serveren svarede med kode: {response_code}
+SERVER_STATUS_ACCESS_GRANTED,Access Granted!,Adgang tillladt!
+SERVER_INFO_ERROR_SEND_HEALTH_CHECK,Could not connect to the server.,Kunne ikke forbinde til serveren.
+SERVER_INFO_ERROR_SEND_ACCESS_CODE,Could not send access code to server.,Kunne ikke sende adgangskoden til serveren.
+SERVER_STATUS_ACCESS_DENIED,Access Denied.,Ingen adgang.
+SERVER_INFO_INVALID_API_KEY,Invalid API key.,Forkert adgangskode.
+NAME_ENTRY_TITLE,What is your name?,Hvad hedder du?
+NAME_PROMPT_LABEL,My name is: ,Mit navn er: 
+WELCOME_TO_USER,Welcome back {name}!,Velkommen tilbage {name}!

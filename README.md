@@ -39,6 +39,7 @@
   - [Client Settings](#client-settings)
 - [Project Structure](#project-structure)
 - [Production Considerations](#production-considerations)
+- [Credits](#credits)
 - [License](#license)
 
 ## Overview
@@ -414,6 +415,12 @@ This template is designed as a simple, secure starting point. If you deploy to p
 - **Use HTTPS** — Serve the API over HTTPS; the client should use `https://` for `HOST_EXPORTED` and `HOST_EDITOR` when applicable.
 - **Strong access key** — Use a long, random value for `GLOBAL_ACCESS_KEY`. Do not commit `.env`.
 - **Environment variables** — Store secrets in your host's environment, not in code.
+
+## Credits
+| Asset | Source | License |
+| :--- | :--- | :--- |
+| **Country Flags** | [lipis/flag-icons](https://github.com/lipis/flag-icons) | MIT |
+| **Icons** | [Google Material Icons](https://fonts.google.com/icons) | Apache 2.0 |
 
 ## License
 Godot-FastAPI Auth Template is released under the [GNU Affero General Public License v3.0 (AGPL-3.0-only)](LICENSE.md).

@@ -2,7 +2,7 @@ key,en,da
 CHOOSE_LANGUAGE,Choose a language,Vælg et sprog
 LANGUAGE,English,Dansk
 CONTINUE_BUTTON,Continue,Fortsæt
-APP_NAME,My Workdays,My Workdays
+APP_NAME,<app_name>,<app_navn>
 WELCOME_TO_APP,"Welcome to
 {app_name}!","Velkommen til
 {app_name}!"

@@ -5,8 +5,8 @@ It sets up middleware, routes, and runs the server.
 
 Example:
     Run the app from the command line:
-        set PYTHONPATH=%CD%
-        python -m uvicorn app.main:app --reload
+        cd server
+        python -m app.main
 """
 
 from fastapi import FastAPI
@@ -54,5 +54,9 @@ def read_root() -> dict:
 if __name__ == "__main__":
     import uvicorn
 
-    # Run the server with settings from config
-    uvicorn.run(app, host=settings.host, port=settings.port)
+    uvicorn.run(
+        "app.main:app",
+        host=settings.host,
+        port=settings.port,
+        reload=settings.debug,
+    )

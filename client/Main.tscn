@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://3dh2lyes5t21"]
 
-[ext_resource type="Script" uid="uid://dy4cid2tktrks" path="res://main.gd" id="1_uu6xs"]
+[ext_resource type="Script" uid="uid://bs05ou0ca7avv" path="res://main.gd" id="1_uu6xs"]
 [ext_resource type="PackedScene" uid="uid://pwjp33nvh68" path="res://screens/language_selection/language_selection_screen.tscn" id="2_uu6xs"]
 
 [node name="Main" type="Node" unique_id=1141527905]

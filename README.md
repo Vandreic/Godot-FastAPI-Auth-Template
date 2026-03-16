@@ -2,13 +2,16 @@
 
 <p align="center">
   <a href="https://godotengine.org/">
-    <img src="https://img.shields.io/badge/Godot-3776AB.svg?style=plastic&logo=godot-engine&logoColor=white" alt="Godot" />
+    <img src="https://img.shields.io/badge/Godot-4.6-478CBF.svg?style=for-the-badge&logo=godot-engine&logoColor=white" alt="Godot 4.6" />
+  </a>
+  <a href="https://www.python.org/">
+    <img src="https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+" />
   </a>
   <a href="https://fastapi.tiangolo.com/">
-    <img src="https://img.shields.io/badge/Python%20/%20FastAPI-00C7B7.svg?style=plastic&logo=fastapi&logoColor=white" alt="Python / FastAPI" />
+    <img src="https://img.shields.io/badge/FastAPI-00C7B7.svg?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
   </a>
   <a href="https://www.gnu.org/licenses/agpl-3.0.en.html">
-    <img src="https://img.shields.io/badge/license-AGPLv3-blue.svg?style=plastic" alt="License" />
+    <img src="https://img.shields.io/badge/license-AGPLv3-blue.svg?style=for-the-badge" alt="License" />
   </a>
 </p>
 
@@ -20,11 +23,13 @@
 - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Features](#features)
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
 - [Quick Start](#quick-start)
-  - [Initial Configuration](#initial-configuration)
-    - [Server Configuration (Environment Variables)](#server-configuration-environment-variables)
     - [Client Configuration](#client-configuration)
   - [Running the project](#running-the-project)
+  - [Testing: IDE vs Phone](#testing-ide-vs-phone)
+- [User Flow](#user-flow)
 - [How It Works](#how-it-works)
   - [API Endpoints Overview](#api-endpoints-overview)
   - [Communication Flow](#communication-flow)
@@ -33,13 +38,14 @@
   - [Server Settings](#server-settings)
   - [Client Settings](#client-settings)
 - [Project Structure](#project-structure)
+- [Production Considerations](#production-considerations)
 - [License](#license)
 
 ## Overview
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| [Client](client/) | [Godot 4.5](https://godotengine.org/article/maintenance-release-godot-4-5-1/) ([GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html#doc-gdscript)) | User Interface & HTTP requests |
+| [Client](client/) | [Godot 4.6](https://godotengine.org/) ([GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html#doc-gdscript)) | User Interface & HTTP requests |
 | [Server](server/) | [Python](https://www.python.org/) ([FastAPI](https://fastapi.tiangolo.com/)) | Access key authentication |
 
 **Client (Frontend):** Built with [Godot](https://godotengine.org/) using [GDScript](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/index.html#doc-gdscript). The user interface is created using Godot's [Control Nodes](https://docs.godotengine.org/en/stable/classes/class_control.html), which automatically adjust to different screen sizes. Backend communication is handled through the Godot's [HTTPRequest node](https://docs.godotengine.org/en/stable/classes/class_httprequest.html#class-httprequest). <br><br>
@@ -54,6 +60,20 @@
 - 🔄 **Dynamic Screen Scaling** – Landscape and portrait mode support
 - 🌍 **Localization (CSV)** – Translation system is set up; add more languages by extending the CSV
 
+## Architecture
+
+<img src="docs/architecture-diagram.png" alt="Client-Server Architecture" style="max-width:600px; width:100%; height:auto;" />
+
+The client sends HTTP requests with an `Access-Key` header. The server validates the key against `GLOBAL_ACCESS_KEY` and returns JSON. No session cookies—each protected request includes the key.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- [ ] **[Godot 4.6](https://godotengine.org/download/)** (or compatible 4.x) installed
+- [ ] **[Python 3.10+](https://www.python.org/downloads/)** installed
+- [ ] **Server running** when testing the client (see [Quick Start](#quick-start))
+
 ## Quick Start
 1. Clone the repository:
    ```bash
@@ -63,63 +83,56 @@
    ```bash
     python -m pip install -r server/requirements.txt
     ```
-3. Create a `.env` file in the `server/` directory and configure server settings (See [Server Configuration](#server-configuration-environment-variables) below). 
-   * Make sure to set a private `GLOBAL_ACCESS_KEY` and ensure `HOST` and `PORT` match the client configuration.
+3. Create a `.env` file in the `server/` directory and configure server settings (See [Server Configuration](#server-configuration-environment-variables) below). Set a private `GLOBAL_ACCESS_KEY`, use the same `PORT` as the client (e.g. `8000`), and use `HOST=0.0.0.0` if you plan to test from another device (e.g. phone).
 4. Start the server:
    ```bash
     cd server
-    set PYTHONPATH=%CD%
-    python -m uvicorn app.main:app --reload
+    python -m app.main
     ```
 5. Start the client by importing the `client/` folder in the Godot editor and running the project.
-6. Test the application by entering your access key and clicking "Connect". You should see a success screen if the key is valid, or an error message if it's invalid.
+6. Test the application by entering your access key and clicking "Connect". A valid key takes you to the **Name Entry** screen, then the **Home** screen. An invalid key shows an error message.
 
 **Note:** If you experience connection issues, try disabling any VPNs as they may interfere with local server connections.
-
-## Installing / Getting started
-
-### Prerequisites
-- [Godot 4.6.1](https://godotengine.org/article/maintenance-release-godot-4-6-1/)
-- [Python 3.14.2](https://www.python.org/downloads/release/python-3142/)
-
-Download the repository.
-
-Install Python dependencies:
-```bash
-python -m pip install -r server/requirements.txt
-```
 
 ### Initial Configuration
 
 #### Server Configuration (Environment Variables)
 
-Create a `.env` file in the `server/` directory and add the following variables:
+Create a `.env` file in the `server/` directory and add the following variables (use `KEY=value` format, no spaces around `=`). **All variables are required—there are no defaults.** You create the file and must set each one:
 
-```python
+```env
 # Security - Required
-GLOBAL_ACCESS_KEY = "secret-access-key"
+GLOBAL_ACCESS_KEY=secret-access-key
 
 # API Configuration
-TITLE = "Server API"
-DESCRIPTION = "A backend API for the Godot-FastAPI Auth Stack, built with FastAPI."
-VERSION = "0.0.1"
+TITLE=Server API
+DESCRIPTION=A backend API for the Godot-FastAPI Auth Stack, built with FastAPI.
+VERSION=0.0.1
 
 # Server Configuration
-HOST = "localhost"
-PORT = 8000
-DEBUG = false
+HOST=0.0.0.0
+PORT=8000
+DEBUG=false
 ```
 
-**Important:** Replace `secret-access-key` with a private key. Ensure `HOST` and `PORT` match the client configuration. Do not commit `.env` to version control. It should be in `.gitignore`. 
+**Important:** Replace `secret-access-key` with a strong, private key. Use `HOST=0.0.0.0` to allow connections from your phone on the same network; use `localhost` for local-only. `PORT` must match the client. Do not commit `.env` to version control. It should be in `.gitignore`. 
 
 #### Client Configuration
 
-Edit [client/autoload/api_manager.gd](client/autoload/api_manager.gd) and set `HOST` and `PORT` to match the server configuration. The `HOST` must include the protocol:
-```gdscript
-## The server's host address including the protocol.
-const HOST: String = "http://localhost"
+The client picks the server address automatically based on where it runs:
+- **Godot IDE**: Uses `HOST_EDITOR` (localhost). No change needed.
+- **Exported app (phone)**: Uses `HOST_EXPORTED`. Set this to your PC's IP address (with protocol, e.g. `http://10.0.0.7`).
 
-## The server's port number.
+**How to get your PC's IP:**
+- **Windows:** Open CMD, run `ipconfig`. Look for **IPv4 Address** under your WiFi or Ethernet adapter (e.g. `10.0.0.7` or `192.168.1.100`).
+- **macOS/Linux:** Run `ifconfig` or `ip addr`. Look for the IPv4 address on your active adapter.
+
+Edit [client/autoload/api_manager.gd](client/autoload/api_manager.gd):
+```gdscript
+## For exported app (e.g. phone). Replace with your PC's IP.
+const HOST_EXPORTED: String = "http://10.0.0.7"
+
+## Must match server/.env PORT
 const PORT: int = 8000
 ```
 
@@ -128,36 +141,66 @@ const PORT: int = 8000
 1. **Start the Server:**
    ```bash
    cd server
-   set PYTHONPATH=%CD%
-   python -m uvicorn app.main:app --reload
+   python -m app.main
    ```
-   Server runs at `http://localhost:8000`.
+   Server runs at `http://localhost:8000` (or your configured HOST:PORT from `.env`).
 
 2. **Start the Client:**
    - Import `/client` folder in the Godot editor.
    - Run the project (F5).
 
 3. **Test the Application:**
-   - Enter your access code and click "Connect".
-      <div align="left">
-        <img src="docs/client-login-screen.png" alt="Godot Client Login Screen" style="max-width:400px; width:100%; height:auto;" />
-      </div>
-   - Valid key → success screen:
-      <div align="left">
-        <img src="docs/client-home-screen.png" alt="Godot Client Home Screen" style="max-width:400px; width:100%; height:auto;" />
-      </div>
-   - Invalid key → error message:
-      <div align="left">
-        <img src="docs/client-login-screen-invalid-key.png" alt="Godot Client Login Screen - Invalid Key" style="max-width:400px; width:100%; height:auto;" />
-      </div>
+   - Enter your access key and click "Connect".
+   - **Valid key** → Name Entry screen → Home screen.
+   - **Invalid key** → Error message.
 
-**Note:** VPN may interfere with local server connections. If you experience connection issues, try disabling the VPN and try again.
+   <p align="center">
+     <img src="docs/client-login-screen.png" alt="Login screen" width="280" />
+     <img src="docs/client-login-screen-invalid-key.png" alt="Login screen - invalid key" width="280" />
+   </p>
+   <p align="center">
+     <img src="docs/client-name-entry-screen.png" alt="Name entry screen" width="280" />
+     <img src="docs/client-home-screen.png" alt="Home screen" width="280" />
+   </p>
+
+### Testing: IDE vs Phone
+
+The client automatically uses the right server address:
+
+| Where you run the app | Server address used |
+|-----------------------|---------------------|
+| Godot IDE (F5)        | `localhost`         |
+| Exported app (e.g. phone) | Your PC's IP   |
+
+**IDE testing:**
+1. Server `.env`: `HOST=localhost` or `HOST=0.0.0.0`, `PORT=8000`
+2. Run server: `cd server` then `python -m app.main`
+3. Run Godot project (F5). Client uses `localhost` automatically.
+
+**Phone testing:**
+1. Server `.env`: `HOST=0.0.0.0`, `PORT=8000` (required so server accepts network connections)
+2. Get your PC's IP: Windows CMD → `ipconfig` → IPv4 under WiFi/Ethernet (e.g. `10.0.0.7`)
+3. In [client/autoload/api_manager.gd](client/autoload/api_manager.gd), set `HOST_EXPORTED = "http://YOUR_PC_IP"` (e.g. `http://10.0.0.7`)
+4. PC and phone must be on the same WiFi
+5. (Optional) Windows Firewall: if the phone cannot connect, allow inbound TCP on port 8000
+6. Export the app to your phone and run it
+
+**Note:** VPN may interfere with local server connections. Disable it if you experience connection issues.
+
+## User Flow
+
+The app follows this screen flow:
+
+1. **Language Selection** — User picks a language (first launch only).
+2. **Login** — User enters the access key and clicks "Connect".
+3. **Name Entry** — After successful verification, user enters their name.
+4. **Home** — Main screen after completing the flow.
+
+On subsequent launches, if language and name are already saved, the app goes directly to the appropriate screen (e.g. Home if both are set).
 
 ## How It Works
 
 <img src="docs/authentication-flow.png" alt="Client-Server Authentication Flow" style="max-width:600px; width:100%; height:auto;" />
-
-**Note:** The diagram illustrates the authenticated request flow for `/api/v1/auth/verify` endpoint.
 
 ### API Endpoints Overview
 
@@ -246,22 +289,26 @@ The server uses access key authentication for protected endpoints:
 
 | Setting | Where It's Set | Purpose |
 |---------|---|----------|
-| `HOST` | Server: `.env` <br> Client: `api_manager.gd` | Server address (client includes protocol: `http://localhost`) |
+| Host | Server: `.env` <br> Client: `api_manager.gd` | Server address. Client uses `localhost` in IDE, `HOST_EXPORTED` when exported (e.g. phone). |
 | `PORT` | Server: `.env` <br> Client: `api_manager.gd` | Server port (must match on both sides) |
 
-Must be **identical on server and client** for communication to work.
+`PORT` must be **identical on server and client** for communication to work.
 
 ### Server Settings
 
-Configure these in `server/.env`:
+Configure these in `server/.env`. **All variables are required—there are no defaults.** You create the file and must set each one:
 
-| Variable | Purpose | Default |
+| Variable | Purpose | Example |
 |----------|---------|---------|
-| `GLOBAL_ACCESS_KEY` | Secret key for API authentication | N/A (required) |
-| `HOST` | Server host address | `localhost` |
-| `PORT` | Server port | `8000` |
+| `GLOBAL_ACCESS_KEY` | Secret key for API authentication | `your-secret-key` |
+| `TITLE` | API title (shown in docs) | `Server API` |
+| `DESCRIPTION` | API description | `A backend API for the Godot-FastAPI Auth Stack, built with FastAPI.` |
+| `VERSION` | API version | `0.0.1` |
+| `HOST` | Server host. Use `0.0.0.0` for phone testing. | `0.0.0.0` |
+| `PORT` | Server port (must match client) | `8000` |
+| `DEBUG` | Enable auto-reload and debug mode | `false` |
 
-See [server/README.md](server/) for all available server settings.
+See [server/README.md](server/README.md) for all available server settings.
 
 ### Client Settings
 
@@ -269,18 +316,20 @@ Configure these in `client/autoload/api_manager.gd`:
 
 | Variable | Purpose | Default |
 |----------|---------|---------|
-| `HOST` | Server address (protocol included) | `http://localhost` |
-| `PORT` | Server port | `8000` |
+| `HOST_EDITOR` | Used when running from Godot IDE | `http://localhost` |
+| `HOST_EXPORTED` | Used when app runs outside editor (e.g. phone). Set to your PC's IP. | `http://10.0.0.7` |
+| `PORT` | Server port (must match `server/.env`) | `8000` |
 
-See [client/README.md](client/) and [client/autoload/api_manager.gd](client/autoload/api_manager.gd) for all available client settings.
+See [client/README.md](client/README.md) and [client/autoload/api_manager.gd](client/autoload/api_manager.gd) for all available client settings.
 
 ## Project Structure
+
 **Directory Overview:**
 - The `client/` folder contains the entire Godot frontend application. All client-related code, UI scenes, scripts, and assets are located here.
 - The `server/` folder contains the entire FastAPI backend application. All server-related code, API routes, configuration, and dependencies are located here.
 
 ```
-godot-python-stack/
+godot-fastapi-auth-template/
 ├── client/                                         # Godot frontend (Client)
 │   ├── icon.svg                                    # Godot Project icon
 │   ├── main.gd                                     # Main entry script
@@ -292,21 +341,36 @@ godot-python-stack/
 │   │   │   ├── circle.svg                          # Circle icon
 │   │   │   └── sync.svg                            # Sync icon
 │   │   │
+│   │   ├── localization/                           # CSV translations
+│   │   │   └── translations.csv                    # Translation file
+│   │   │
 │   │   └── themes/                                 # UI themes
 │   │       └── light_theme.tres                    # Light theme resource (default theme)
 │   │
 │   ├── autoload/                                   # Global singleton scripts
 │   │   ├── api_manager.gd                          # Handles API requests
+│   │   ├── save_data.gd                            # Persists name, language, cooldown
 │   │   └── screen_manager.gd                       # Handles screen transitions
+│   │
+│   ├── utilities/
+│   │   └── file_handler.gd                         # File I/O for save data
 │   │
 │   └── screens/                                    # UI screens
 │       ├── home/
 │       │   ├── home_screen.tscn                    # Home screen scene
 │       │   └── home_screen_manager.gd              # Home screen logic
 │       │
+│       ├── language_selection/
+│       │   ├── language_selection_screen.tscn     # Language picker
+│       │   └── language_selection_manager.gd       # Language selection logic
+│       │
 │       ├── login/
-│       │   ├── login_screen.tscn                   # Login screen scene
-│       │   └── login_screen_manager.gd             # Login screen logic
+│       │   ├── login_screen.tscn                   # Access key input
+│       │   └── login_screen_manager.gd             # Login logic
+│       │
+│       ├── name_entry/
+│       │   ├── name_entry_screen.tscn              # Name input (after login)
+│       │   └── name_entry_screen_manager.gd        # Name entry logic
 │       │
 │       └── templates/
 │           ├── base_screen_template.tscn           # Base screen template scene
@@ -341,6 +405,15 @@ godot-python-stack/
       ├── security.py                               # Access key validation logic
       └── __init__.py                               # Core package init
 ```
+
+## Production Considerations
+
+This template is designed as a simple, secure starting point. If you deploy to production:
+
+- **Restrict CORS** — Change `allow_origins=["*"]` in `server/app/main.py` to your client's domain(s).
+- **Use HTTPS** — Serve the API over HTTPS; the client should use `https://` for `HOST_EXPORTED` and `HOST_EDITOR` when applicable.
+- **Strong access key** — Use a long, random value for `GLOBAL_ACCESS_KEY`. Do not commit `.env`.
+- **Environment variables** — Store secrets in your host's environment, not in code.
 
 ## License
 Godot-FastAPI Auth Template is released under the [GNU Affero General Public License v3.0 (AGPL-3.0-only)](LICENSE.md).

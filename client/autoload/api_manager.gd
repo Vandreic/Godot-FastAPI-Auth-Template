@@ -5,8 +5,14 @@ extends Node
 ## [signal check_server_health_completed] and [signal verify_access_code_completed]
 ## to report request results.
 ## [br][br]
-## The server URL combines [constant HOST], [constant PORT], and [constant API_PREFIX].
+## The server URL combines host (from constants below), [constant PORT], and [constant API_PREFIX].
 ## Configure endpoints in the [member endpoints] dictionary.
+## [br][br]
+## [b]Server Connection:[/b][br]
+## - [b]IDE:[/b] Uses localhost (client and server on same PC). [br]
+## - [b]Exported (e.g. phone):[/b] Uses your PC's IP so the app can reach the server. [br]
+## - - [b]Get PC IP:[/b] Windows CMD → [code]ipconfig[/code] → IPv4 under WiFi/Ethernet. [br]
+## -[constant PORT] must match [code]server/.env[/code]. Server must use [code]HOST=0.0.0.0[/code] for phone testing.
 ## [br][br]
 ## [b]Autoload:[/b] Access this singleton globally via [code]APIManager[/code].
 
@@ -40,8 +46,11 @@ signal check_server_health_completed(status: ServerHealthStatus, title: String, 
 signal verify_access_code_completed(access_granted: bool, title: String, description: String)
 
 
-## The server's host address including the protocol.
-const HOST: String = "http://localhost"
+## Host when running from Godot IDE (client and server on same PC).
+const HOST_EDITOR: String = "http://localhost"
+## Host when running exported app (e.g. on phone). Replace with your PC's IP.
+## To get PC IP: Windows: run [code]ipconfig[/code], look for IPv4 under your WiFi/Ethernet.
+const HOST_EXPORTED: String = "http://10.0.0.7"
 
 ## The server's port number.
 const PORT: int = 8000
@@ -50,15 +59,21 @@ const PORT: int = 8000
 const API_PREFIX: String = "/api/v1"
 
 ## The timeout duration for HTTP requests in seconds.
-const HTTP_REQUEST_TIMEOUT_DURATION: int = 5
+const HTTP_REQUEST_TIMEOUT_DURATION: int = 1
 
 ## The cooldown duration when API call limit is reached, in seconds.
-const API_CALL_COOLDOWN_DURATION: int = 30
+const API_CALL_COOLDOWN_DURATION: int = 5
 
-## The complete base URL for all API requests.
-##
-## Constructed from [constant HOST], [constant PORT], and [constant API_PREFIX].
-var url: String = "%s:%s%s" % [HOST, PORT, API_PREFIX]
+## Active host based on run context. Uses [constant HOST_EDITOR] in IDE, [constant HOST_EXPORTED] when exported.
+var host: String:
+	get:
+		return HOST_EDITOR if OS.has_feature("editor") else HOST_EXPORTED
+
+## Complete base URL for all API requests.
+## Uses [constant HOST_EDITOR] in IDE, [constant HOST_EXPORTED] when exported.
+var url: String:
+	get:
+		return "%s:%s%s" % [host, PORT, API_PREFIX]
 
 ## Maps endpoint names to their URL paths.
 ## [br][br]
